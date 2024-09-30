@@ -50,7 +50,9 @@ function array_flat_values_and_keys(array $arr): array
 ```
 
 ## Task 3: WordPress Plugin Development
-(UNDER DEVELOPMENT)
+- The zip file called `wp-books-manager-plugin.zip` contains the code necessary for the requested plugin features;
+- To use it, just download the repo and upload the zip file to a new WordPress installation throw the `Plugins` admin page.
+- Once uploaded, activate the plugin and the 'Book' (custom post type) and 'Genre' (taxonomy) will appear in the admin menu.
 
 ## Task 4: Optimize WordPress Performance
 Given the proposed scenario, I would go with the following approaches:
