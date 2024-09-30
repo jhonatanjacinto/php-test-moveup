@@ -1,12 +1,14 @@
 <?php
 
-class Product 
+class Product implements JsonSerializable
 {
     public function __construct(
         public int $id = 0,
         public ?string $name = null,
         public ?string $description = null,
         public float $price = 0.0,
+        public ?DateTime $created_at = null,
+        public ?DateTime $updated_at = null,
     ) {}
 
     public function validate(): void {
@@ -35,10 +37,23 @@ class Product
             name: $data?->name ?? null,
             description: $data?->description ?? null,
             price: (float) $data?->price ?? 0.0,
+            created_at: $data?->created_at ? new DateTime($data->created_at) : null,
+            updated_at: $data?->updated_at ? new DateTime($data->updated_at) : null,
         );
 
         $p->validate();
 
         return $p;
+    }
+
+    public function jsonSerialize(): array {
+        return [
+            "id" => $this->id,
+            "name" => $this->name,
+            "description" => $this->description,
+            "price" => $this->price,
+            "created_at" => $this->created_at?->format("Y-m-d H:i:s"),
+            "updated_at" => $this->updated_at?->format("Y-m-d H:i:s"),
+        ];
     }
 }

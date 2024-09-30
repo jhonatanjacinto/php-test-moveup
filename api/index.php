@@ -79,6 +79,7 @@ handle_put("/api/products/{id}", callback: function (array $params, mixed $body)
         }
 
         $product->id = $id;
+        $product->updated_at = new DateTime();
         json_success(200, $product);
     } catch (Exception $e) {
         json_error(500, $e->getMessage());
