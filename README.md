@@ -6,9 +6,17 @@ The current application is dockerized, so it requires Docker Engine to run. To s
 After docker install and configure the necessary containers, just access http://localhost:8000/api/products to see the API running, for example.
 
 ## Task 1: PHP RESTful API
-- All API endpoints are under `http://localhost:8000/api/products`;
-- You can use Postman to make requests to the mentioned URL;
-- 
+- All API endpoints are under `http://localhost:8000/api`;
+- You can use Postman to make requests to the mentioned URL. For example, to see all products, access `http://localhost:8000/api/products`;
+- To UPDATE or INSERT a new product, the JSON object that must be sent has to have the following shape:
+```json
+{
+    "name": "Product Name",
+    "description": "Description of the product",
+    "price": 100.00
+}
+```
+- ID of the product (for all the operations that requires it) should be provided via the URL path. Ex: `http://localhost:8000/api/products/1`
 
 ## Task 2: Handle Complex Data Structures
 Solution can be spotted in `http://localhost:8000/array-flat/index.php` file inside this repository with 4 test cases. This is the resulting function to flatten the sample array:
@@ -35,7 +43,7 @@ function array_flat_values_and_keys(array $arr): array
 ```
 
 ## Task 3: WordPress Plugin Development
-
+(UNDER DEVELOPMENT)
 
 ## Task 4: Optimize WordPress Performance
 Given the proposed scenario, I would go with the following approaches:

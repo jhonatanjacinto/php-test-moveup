@@ -12,5 +12,6 @@ define("DB_PORT", "3306");
 /**
  * Imports the required files
  */
+require "classes/Product.php";
 require "functions/db.php";
 require "functions/request-handler.php";

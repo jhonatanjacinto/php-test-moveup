@@ -70,11 +70,11 @@ function db_execute(string $query, array $params = [], bool $return_id = false):
         $pdo = db_connect();
         $stmt = $pdo->prepare($query);
         $result = $stmt->execute($params);
+        $last_id = $pdo->lastInsertId();
     } catch (PDOException $e) {
         echo "db_execute: ". $e->getMessage();
     } finally {
         $pdo = null;
     }
-
-    return $return_id ? $pdo->lastInsertId() : $result;
+    return $return_id ? $last_id : $result;
 }
