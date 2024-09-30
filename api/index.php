@@ -10,9 +10,7 @@ require "src/config.php";
  */
 handle_get("/api/products", function () {
     try {
-        $products = array_map(function ($product) {
-            return Product::parse($product);
-        }, db_query_many("SELECT * FROM tbl_products"));
+        $products = array_map(fn ($product) => Product::parse($product), db_query_many("SELECT * FROM tbl_products"));
         json_success(200, $products);
     } catch (Exception $e) {
         json_error(500, $e->getMessage());
