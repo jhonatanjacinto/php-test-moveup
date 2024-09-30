@@ -17,6 +17,13 @@ After docker install and configure the necessary containers, just access http://
 }
 ```
 - ID of the product (for all the operations that requires it) should be provided via the URL path. Ex: `http://localhost:8000/api/products/1`
+- When updating a product, just provide the necessary changed fields. Ex: in case only the description will be updated, set the URL for the product to be updated (with its corresponding ID) and in the body create an object only with the description field.
+```json
+// PUT http://localhost:8000/api/products/2
+{
+    "description": "New description for the product with ID 2"
+}
+```
 
 ## Task 2: Handle Complex Data Structures
 Solution can be spotted in `http://localhost:8000/array-flat/index.php` file inside this repository with 4 test cases. This is the resulting function to flatten the sample array:
