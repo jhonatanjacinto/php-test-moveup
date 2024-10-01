@@ -36,9 +36,9 @@ class Product implements JsonSerializable
             id: $data?->id ?? 0,
             name: $data?->name ?? null,
             description: $data?->description ?? null,
-            price: (float) $data?->price ?? 0.0,
-            created_at: $data?->created_at ? new DateTime($data->created_at) : null,
-            updated_at: $data?->updated_at ? new DateTime($data->updated_at) : null,
+            price: (float) ($data?->price ?? 0.0),
+            created_at: !empty($data?->created_at) ? new DateTime($data->created_at) : null,
+            updated_at: !empty($data?->updated_at) ? new DateTime($data->updated_at) : null,
         );
 
         $p->validate();

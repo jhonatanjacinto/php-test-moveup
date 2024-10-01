@@ -4,7 +4,7 @@
  * Starts a database connection
  * @return PDO|null
  */
-function db_connect(): ?PDO {
+function db_connect(): PDO {
     try {
         $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
         $pdo = new PDO($dsn, DB_USER, DB_PASS, [
@@ -13,9 +13,8 @@ function db_connect(): ?PDO {
         ]);
         return $pdo;
     } catch (PDOException $e) {
-        echo "DB Connection failed: " . $e->getMessage();
+        throw new Exception("DB Connection failed: " . $e->getMessage());
     }
-    return null;
 }
 
 /**
@@ -31,11 +30,10 @@ function db_query_one(string $query, array $params = []): null|object|bool {
         $stmt->execute($params);
         return $stmt->fetchObject();
     } catch (PDOException $e) {
-        echo "db_query_one: " . $e->getMessage();
+        throw new Exception("db_query_one: " . $e->getMessage());
     } finally {
         $pdo = null;
     }
-    return null;
 }
 
 /**
@@ -51,11 +49,10 @@ function db_query_many(string $query, array $params = []): array {
         $stmt->execute($params);
         return $stmt->fetchAll();
     } catch (PDOException $e) {
-        echo "db_query_many: " . $e->getMessage();
+        throw new Exception("db_query_many: " . $e->getMessage());
     } finally {
         $pdo = null;
     }
-    return [];
 }
 
 /**
@@ -72,7 +69,7 @@ function db_execute(string $query, array $params = [], bool $return_id = false):
         $result = $stmt->execute($params);
         $last_id = $pdo->lastInsertId();
     } catch (PDOException $e) {
-        echo "db_execute: ". $e->getMessage();
+        throw new Exception("db_execute: ". $e->getMessage());
     } finally {
         $pdo = null;
     }
