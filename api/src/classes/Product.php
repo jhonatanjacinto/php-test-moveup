@@ -12,7 +12,7 @@ class Product implements JsonSerializable
     ) {}
 
     public function validate(): void {
-        if (empty($this->name)) {
+        if (empty(trim($this->name))) {
             throw new Exception("Product name is required");
         }
 
