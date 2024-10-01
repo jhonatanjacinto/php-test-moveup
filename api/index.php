@@ -27,6 +27,7 @@ handle_get("/api/products/{id}", function (array $params) {
         if (! $product) {
             json_error(404, "Product not found");
         }
+        $product = Product::parse($product);
         json_success(200, $product);
     } catch (Exception $e) {
         json_error(500, $e->getMessage());
