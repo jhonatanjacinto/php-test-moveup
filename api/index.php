@@ -47,6 +47,8 @@ handle_post("/api/products", function (array $params, mixed $body) {
         }
 
         $product->id = $product_id;
+        $product->created_at = new DateTime();
+        $product->updated_at = new DateTime();
         json_success(201, $product);
     } catch (Exception $e) {
         json_error(400, $e->getMessage());
