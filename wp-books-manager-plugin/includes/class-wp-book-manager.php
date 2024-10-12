@@ -26,6 +26,8 @@ class WP_Book_Manager
         add_action('init', array($this, 'register_rest_fields'));
         add_action('add_meta_boxes', array($this, 'create_meta_boxes'));
         add_action('save_post_book', array($this, 'save_book_meta'), 10, 3);
+        add_action('rest_pre_insert_book', array($this, 'validate_book_meta'), 10, 2);
+        add_action( 'admin_enqueue_scripts', array($this, 'enqueue_admin_scripts') );
     }
 
     /**
@@ -37,6 +39,22 @@ class WP_Book_Manager
         wp_enqueue_style('wpbm-styles', WPBM_PLUGIN_URL . 'assets/css/wpbm-styles.min.css', array(), WPBM_VERSION);
     }
 
+    /**
+     * Enqueue the plugin scripts in the admin
+     * @return void
+     */
+    public function enqueue_admin_scripts(): void
+    {
+        $screen = get_current_screen();
+        if ( $screen->post_type !== 'book' ) return;
+
+        wp_enqueue_script('wpbm-admin-scripts', WPBM_PLUGIN_URL . 'assets/js/wpbm-book-meta-fields.js', array('wp-plugins', 'wp-edit-post', 'wp-data', 'wp-element', 'wp-components', 'wp-i18n'), WPBM_VERSION, true);
+    }
+
+    /**
+     * Register the custom fields for the 'Book' post type in the REST API
+     * @return void
+     */
     public function register_rest_fields()
     {
         $default_args = array(
@@ -50,6 +68,9 @@ class WP_Book_Manager
             'type' => 'string',
             'single' => true,
             'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback' => function () {
+                return current_user_can('edit_posts');
+            },
         );
         register_post_meta('book', '_book_author', $default_args);
         register_post_meta('book', '_book_isbn', $default_args);
@@ -100,15 +121,53 @@ class WP_Book_Manager
     }
 
     /**
+     * Validate the book meta data before saving it
+     * @param mixed $prepared_post          The prepared post data
+     * @param mixed $request                The request data
+     * @return mixed
+     */
+    public function validate_book_meta( $prepared_post, $request ) : mixed
+    {
+        $fields_to_validate = array(
+            '_book_author' => array(
+                __('Author is required', $this->text_domain),
+                fn ($value) => !empty( $value )
+            ),
+            '_book_isbn' => array(
+                __('ISBN is required', $this->text_domain),
+                fn ($value) => !empty( $value )
+            ),
+            '_book_publication_date' => array(
+                __('Publication Date is required', $this->text_domain),
+                fn ($value) => strtotime( $value ) !== false
+            ),
+        );
+
+        $meta_fields = $request->get_param('meta');
+        if ( !$meta_fields ) return $prepared_post;
+
+        foreach ($fields_to_validate as $field_name => $field) {
+            [$message, $validation] = $field;
+            if ( isset($meta_fields[$field_name]) && !$validation($meta_fields[$field_name]) ) {
+                return new WP_Error( 'rest_invalid_param', $message, array( 'status' => 400 ) );
+            }
+        }
+
+        return $prepared_post;
+    }
+
+    /**
      * Save the book meta data when the post is saved
      * @param mixed $post_id        The post ID
      * @return mixed
      */
-    public function save_book_meta($post_id, $post, $updating): mixed
+    public function save_book_meta($post_id, $post, $updating)
     {
-        if (!current_user_can('edit_post', $post->ID)) {
-            return new WP_Error('rest_forbidden', __('You are not allowed to edit this post.', $this->text_domain), ['status' => rest_authorization_required_code()]);
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
         }
+
+        if ( !$_POST ) return;
 
         if (isset($_POST['_book_author']) && !empty($_POST['_book_author'])) {
             update_post_meta($post->ID, '_book_author', sanitize_text_field($_POST['_book_author']));
@@ -121,8 +180,6 @@ class WP_Book_Manager
         if (isset($_POST['_book_publication_date']) && !empty($_POST['_book_publication_date'])) {
             update_post_meta($post->ID, '_book_publication_date', sanitize_text_field($_POST['_book_publication_date']));
         }
-
-        return null;
     }
 
     /**
